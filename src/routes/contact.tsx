@@ -109,7 +109,7 @@ function ContactPage() {
           <ContactCard icon={Phone} title="Call / WhatsApp" lines={[SITE.phone]} href={`tel:${SITE.phone}`} cta="Tap to call" />
           <ContactCard icon={Mail} title="Email" lines={[SITE.email]} href={`mailto:${SITE.email}`} cta="Send an email" />
           <ContactCard icon={MapPin} title="Visit / Post" lines={[SITE.address]} />
-          <ContactCard icon={Clock} title="Business Hours" lines={["Mon – Fri: 07:30 – 17:00", "Sat: 08:00 – 13:00", "Sun: Closed"]} />
+          <ContactCard icon={Clock} title="Business Hours" lines={SITE.hours} />
         </div>
       </section>
 

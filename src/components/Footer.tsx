@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
 import { NAV, SITE, whatsappLink } from "@/lib/site";
-import logo from "@/assets/logo.png";
+import logoIcon from "@/assets/logo-icon.png";
 
 const SERVICES = [
   "Residential Construction",
@@ -15,15 +15,20 @@ const SERVICES = [
 
 export function Footer() {
   return (
-    <footer className="mt-24 bg-accent text-accent-foreground">
+    <footer className="mt-24 bg-[var(--brand-dark)] text-[var(--brand-cream)]">
+      <div className="h-1.5 bg-gradient-bar" />
       <div className="container-x grid gap-10 py-14 md:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2">
-            <img src={logo} alt="" width={40} height={40} className="h-10 w-10 rounded bg-white/90 p-1" />
-            <div className="font-display text-lg font-bold">Nyeneng</div>
+          <div className="flex items-center gap-3">
+            <img src={logoIcon} alt="" width={48} height={48} className="h-12 w-12 rounded-full bg-[var(--brand-cream)]" />
+            <div>
+              <div className="font-display text-lg font-extrabold tracking-wide">NYENENG</div>
+              <div className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--brand-copper)]">Trading & Projects</div>
+            </div>
           </div>
-          <p className="mt-3 text-sm text-accent-foreground/80">
-            {SITE.tagline}. Multi-trade construction & infrastructure since {SITE.established}.
+          <p className="mt-4 text-sm italic text-[var(--brand-cream)]/70">"{SITE.tagline}"</p>
+          <p className="mt-2 text-sm text-[var(--brand-cream)]/70">
+            Multi-trade construction & infrastructure since {SITE.established}.
           </p>
           <div className="mt-4 flex gap-3">
             <a aria-label="Facebook" href="#" className="rounded-full bg-white/10 p-2 hover:bg-white/20">

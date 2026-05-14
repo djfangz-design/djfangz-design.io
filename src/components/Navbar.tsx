@@ -1,7 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logoIcon from "@/assets/logo-icon.png";
 import { NAV, whatsappLink } from "@/lib/site";
 
 export function Navbar() {
@@ -27,11 +27,11 @@ export function Navbar() {
       }`}
     >
       <div className="container-x flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Nyeneng logo" width={40} height={40} className="h-10 w-10" />
+        <Link to="/" className="flex items-center gap-2.5">
+          <img src={logoIcon} alt="Nyeneng logo" width={44} height={44} className="h-11 w-11 rounded-full" />
           <div className="leading-tight">
-            <div className="font-display text-base font-bold text-accent">Nyeneng</div>
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            <div className="font-display text-base font-extrabold tracking-wide text-[var(--brand-dark)]">NYENENG</div>
+            <div className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[var(--brand-copper)]">
               Trading & Projects
             </div>
           </div>
