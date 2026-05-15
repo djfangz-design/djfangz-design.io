@@ -1,9 +1,57 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import { z } from "zod";
 import { Mail, MapPin, Phone, Clock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { SITE, whatsappLink } from "@/lib/site";
-import { contactFormSchema, saveLead, isWhatsAppAvailable, checkPopupBlocked, sendLeadViaEmail } from "@/lib/forms";
+
+// Define form schema inline to avoid dependency issues
+const contactFormSchema = z.object({
+  name: z.string().trim().min(2, "Please enter your name").max(100),
+  phone: z.string().trim().min(7, "Please enter a valid phone").max(20),
+  email: z.string().trim().email("Invalid email").max(255).optional().or(z.literal("")),
+  service: z.string().min(1, "Please choose a service"),
+  message: z.string().trim().min(10, "Tell us a bit more").max(1000),
+});
+
+type ContactFormData = z.infer<typeof contactFormSchema>;
+
+// Lead storage utilities
+function isWhatsAppAvailable(): boolean {
+  if (typeof window === "undefined") return true;
+  const ua = navigator.userAgent.toLowerCase();
+  return /android|iphone|ipod|ipad|whatsapp/.test(ua);
+}
+
+function checkPopupBlocked(popup: Window | null): boolean {
+  if (popup === null || popup === undefined) return true;
+  try {
+    return popup.closed === undefined || popup.closed === true;
+  } catch {
+    return true;
+  }
+}
+
+function saveLead(data: ContactFormData, method: "whatsapp" | "email" | "offline"): void {
+  if (typeof window === "undefined") return;
+  try {
+    const lead = {
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      service: data.service,
+      message: data.message,
+      timestamp: new Date().toISOString(),
+      method,
+    };
+    const leads = JSON.parse(localStorage.getItem("nyeneng_leads") || "[]");
+    leads.unshift(lead);
+    if (leads.length > 100) leads.pop();
+    localStorage.setItem("nyeneng_leads", JSON.stringify(leads));
+  } catch (error) {
+    console.error("Lead storage error:", error);
+  }
+}
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -36,7 +84,10 @@ function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [whatsappAvailable, setWhatsappAvailable] = useState(true);
   const [useEmailFallback, setUseEmailFallback] = useState(false);
-  const [emailStatus, setEmailStatus] = useState<{ type: "idle" | "sending" | "success" | "error"; message: string }>({
+  const [emailStatus, setEmailStatus] = useState<{
+    type: "idle" | "error";
+    message: string;
+  }>({
     type: "idle",
     message: "",
   });
@@ -64,21 +115,16 @@ function ContactPage() {
       return;
     }
 
-    // Save lead first
-    const lead = saveLead(r.data, "offline", false);
+    // Save lead locally
+    saveLead(r.data, useEmailFallback ? "email" : "whatsapp");
 
     if (useEmailFallback) {
-      // Try email
-      setEmailStatus({ type: "sending", message: "Sending your enquiry..." });
-      const result = await sendLeadViaEmail(lead);
+      // Email fallback
+      setEmailStatus({
+        type: "error",
+        message: "Email integration coming soon. Please WhatsApp or call us directly.",
+      });
       setLoading(false);
-
-      if (result.success) {
-        setEmailStatus({ type: "success", message: result.message });
-        setSent(true);
-      } else {
-        setEmailStatus({ type: "error", message: "Email service not available. Please call or WhatsApp us directly." });
-      }
     } else {
       // Try WhatsApp
       const msg = `New enquiry from ${r.data.name}\nPhone: ${r.data.phone}\nEmail: ${r.data.email || "-"}\nService: ${r.data.service}\n\n${r.data.message}`;
@@ -90,15 +136,13 @@ function ContactPage() {
       setLoading(false);
 
       if (popupBlocked) {
-        // If popup was blocked, ask if they want to try email
         setEmailStatus({
           type: "error",
-          message: "WhatsApp popup blocked. Would you like to send via email instead?",
+          message: "WhatsApp popup blocked. Please WhatsApp us directly at +27 72 129 6893",
         });
         setUseEmailFallback(true);
       } else {
         setSent(true);
-        saveLead(lead, "whatsapp", true);
       }
     }
   };
@@ -117,23 +161,15 @@ function ContactPage() {
           <div className="rounded-3xl border bg-card p-6 shadow-card md:p-8">
             <h2 className="font-display text-2xl font-bold text-accent">Quick Quote Request</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {useEmailFallback ? "Send your enquiry via email" : "Submitting opens a pre-filled WhatsApp chat with our team."}
+              Submitting opens a pre-filled WhatsApp chat with our team.
             </p>
 
-            {sent && !useEmailFallback ? (
+            {sent ? (
               <div className="mt-6 flex items-start gap-3 rounded-2xl bg-secondary p-5">
                 <CheckCircle2 className="mt-0.5 h-6 w-6 text-primary" />
                 <div>
                   <div className="font-semibold text-accent">Thanks — your enquiry is on its way.</div>
                   <p className="mt-1 text-sm text-muted-foreground">If WhatsApp didn't open automatically, you can also reach us on {SITE.phone}.</p>
-                </div>
-              </div>
-            ) : emailStatus.type === "success" ? (
-              <div className="mt-6 flex items-start gap-3 rounded-2xl bg-secondary p-5">
-                <CheckCircle2 className="mt-0.5 h-6 w-6 text-primary" />
-                <div>
-                  <div className="font-semibold text-accent">{emailStatus.message}</div>
-                  <p className="mt-1 text-sm text-muted-foreground">Our team will respond within 24 hours to your email.</p>
                 </div>
               </div>
             ) : (
@@ -142,7 +178,7 @@ function ContactPage() {
                   <div className="mt-6 flex items-start gap-3 rounded-2xl bg-destructive/10 p-5">
                     <AlertCircle className="mt-0.5 h-6 w-6 text-destructive" />
                     <div>
-                      <div className="font-semibold text-destructive">Unable to open WhatsApp</div>
+                      <div className="font-semibold text-destructive">WhatsApp unavailable</div>
                       <p className="mt-1 text-sm text-muted-foreground">{emailStatus.message}</p>
                     </div>
                   </div>
@@ -191,7 +227,7 @@ function ContactPage() {
                     className="sm:col-span-2 flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-95 disabled:opacity-50"
                   >
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                    {useEmailFallback ? "Send via Email" : "Send via WhatsApp"}
+                    Send via WhatsApp
                   </button>
                 </form>
               </>
