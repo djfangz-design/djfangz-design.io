@@ -421,3 +421,52 @@ function FormField({
     </div>
   );
 }
+
+function FaqSection() {
+  return (
+    <section id="faq" className="border-t">
+      <div className="container-x py-14 md:py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+            FAQs
+          </span>
+          <h2 className="mt-2 font-display text-3xl font-bold text-accent md:text-4xl">
+            Questions we hear every week
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground md:text-base">
+            Quick answers on COCs, boreholes, JoJo tanks, timelines and how we work.
+          </p>
+        </div>
+
+        <Accordion
+          type="single"
+          collapsible
+          className="mx-auto mt-8 max-w-3xl rounded-3xl border bg-card px-5 shadow-card md:mt-10 md:px-7"
+        >
+          {FAQS.map((f, i) => (
+            <AccordionItem key={i} value={`faq-${i}`} className="last:border-b-0">
+              <AccordionTrigger className="text-left font-display text-base font-semibold text-accent md:text-lg">
+                {f.q}
+              </AccordionTrigger>
+              <AccordionContent className="text-sm leading-relaxed text-muted-foreground md:text-base">
+                {f.a}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Still unsure?{" "}
+          <a
+            href={whatsappLink("Hi Nyeneng, I have a question about your services.")}
+            target="_blank"
+            rel="noopener"
+            className="font-semibold text-primary hover:underline"
+          >
+            Ask us on WhatsApp →
+          </a>
+        </p>
+      </div>
+    </section>
+  );
+}
