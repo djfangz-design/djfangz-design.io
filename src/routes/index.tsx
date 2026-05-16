@@ -27,29 +27,21 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Construction company in Rustenburg offering borehole drilling, JoJo tank installation, plumbing, electrical, welding & tiling across North West." },
       { property: "og:title", content: "Nyeneng Trading & Projects — Rustenburg" },
       { property: "og:description", content: "Multi-trade construction & water solutions across Rustenburg and North West." },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: "https://nyeneng-builds-futures.lovable.app/" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
-    scripts: [{
-      type: "application/ld+json",
-      children: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "GeneralContractor",
-        name: SITE.name,
-        telephone: SITE.phone,
-        email: SITE.email,
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "556 Ngeneng Section, Lefaragatlha",
-          addressLocality: "Rustenburg",
-          addressRegion: "North West",
-          postalCode: "0336",
-          addressCountry: "ZA",
-        },
-        areaServed: "Rustenburg, North West, South Africa",
-        foundingDate: "2016",
-      }),
-    }],
+    links: [{ rel: "canonical", href: "https://nyeneng-builds-futures.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://nyeneng-builds-futures.lovable.app/" },
+          ],
+        }),
+      },
+    ],
   }),
   component: HomePage,
 });

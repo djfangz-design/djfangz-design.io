@@ -11,9 +11,22 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "Founded in 2016, Nyeneng is a Rustenburg-based multi-trade construction & infrastructure company serving North West province." },
       { property: "og:title", content: "About Nyeneng Trading & Projects" },
       { property: "og:description", content: "Community-rooted multi-trade construction in Rustenburg since 2016." },
-      { property: "og:url", content: "/about" },
+      { property: "og:url", content: "https://nyeneng-builds-futures.lovable.app/about" },
     ],
-    links: [{ rel: "canonical", href: "/about" }],
+    links: [{ rel: "canonical", href: "https://nyeneng-builds-futures.lovable.app/about" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://nyeneng-builds-futures.lovable.app/" },
+            { "@type": "ListItem", position: 2, name: "About", item: "https://nyeneng-builds-futures.lovable.app/about" },
+          ],
+        }),
+      },
+    ],
   }),
   component: AboutPage,
 });
